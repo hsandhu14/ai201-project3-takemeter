@@ -58,23 +58,27 @@ Example:
 
 If the comment primarily expresses frustration, it will be labeled **reaction**. If it makes a broader prediction or evaluation of a team without support, it will be labeled **hot_take**.
 
-Difficult Annotation Examples:
-Example: "The Celtics are just a coin-flip team."
-Possible labels: hot_take or analysis
-Decision: hot_take
-Reason: The comment is about basketball strategy, but it does not provide enough evidence or reasoning. It makes a broad claim in a provocative way.
-Example: "Some team will talk themselves into trading for Durant."
-Possible labels: hot_take or reaction
-Decision: reaction
-Reason: The comment is more of a casual response to the discussion than a strong prediction or detailed argument.
-Example: "Wembanyama will probably become the best player in the NBA soon."
-Possible labels: hot_take or analysis
-Decision: hot_take
-Reason: The comment makes a bold future prediction without giving specific evidence or reasoning.
-Example: "The Luka trade became especially damaging because Dallas failed to maximize the return through an open bidding process."
-Possible labels: analysis or hot_take
-Decision: analysis
-Reason: Even though it criticizes the trade, it explains a specific reason: Dallas did not create a bidding war or maximize trade value.
+## Difficult Annotation Examples
+
+1. **Example:** "The Celtics are just a coin-flip team."
+   **Possible labels:** hot_take or analysis
+   **Decision:** hot_take
+   **Reason:** The comment is about basketball strategy, but it does not provide enough evidence or reasoning. It makes a broad claim in a provocative way.
+
+2. **Example:** "Some team will talk themselves into trading for Durant."
+   **Possible labels:** hot_take or reaction
+   **Decision:** reaction
+   **Reason:** The comment is more of a casual response to the discussion than a strong prediction or detailed argument.
+
+3. **Example:** "Wembanyama will probably become the best player in the NBA soon."
+   **Possible labels:** hot_take or analysis
+   **Decision:** hot_take
+   **Reason:** The comment makes a bold future prediction without giving specific evidence or reasoning.
+
+4. **Example:** "The Luka trade became especially damaging because Dallas failed to maximize the return through an open bidding process."
+   **Possible labels:** analysis or hot_take
+   **Decision:** analysis
+   **Reason:** Even though it criticizes the trade, it explains a specific reason: Dallas did not create a bidding war or maximize trade value.
 
 ---
 
