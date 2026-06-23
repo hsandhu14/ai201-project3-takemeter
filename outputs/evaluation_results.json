@@ -1,0 +1,9 @@
+{
+  "baseline": {
+    "accuracy": null,
+    "note": "Groq baseline ran but produced 0 parseable predictions due to output parsing issues."
+  },
+  "fine_tuned": {
+    "note": "Fine-tuned model results are shown in the notebook output and confusion matrix."
+  }
+}
