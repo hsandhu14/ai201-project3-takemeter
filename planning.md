@@ -1,149 +1,302 @@
-# TakeMeter Planning Document
+# TakeMeter: NBA Discourse Quality Classifier
+
+## Project Overview
+
+TakeMeter is a fine-tuned text classification system designed to evaluate discourse quality in NBA online communities. Using comments collected from NBA Reddit discussions, the model classifies posts into one of three categories:
+
+- **analysis**
+- **hot_take**
+- **reaction**
+
+The goal of the project is to determine whether a fine-tuned language model can distinguish between evidence-based basketball discussion, unsupported opinions, and emotional reactions.
+
+---
 
 ## Community
 
-For this project, I chose NBA online discussion communities, particularly NBA-related Reddit comments and discussion threads. NBA communities are a good fit for a classification task because they contain a wide range of discourse styles, including detailed basketball analysis, emotional reactions to games, and exaggerated hot takes. This variety creates meaningful distinctions that are recognizable to regular community members and suitable for supervised classification.
+I selected NBA Reddit communities, primarily r/nba, because they contain a large volume of discussion with varying levels of quality. Some comments provide detailed basketball analysis, while others are emotional reactions to games or bold opinions with little supporting evidence. These distinctions are meaningful to NBA fans and create an interesting classification problem.
 
 ---
 
-## Labels
+## Label Taxonomy
 
-### analysis
+### Analysis
 
-**Definition:** A comment that supports its basketball opinion with reasoning, evidence, statistics, tactical observations, or historical comparisons.
+A comment that supports its basketball opinion with reasoning, evidence, statistics, tactical observations, or historical comparisons.
 
 **Examples:**
+- "The Thunder's defense works because their perimeter defenders force teams into difficult late-clock possessions."
+- "Jokic remains the league's best offensive player because his passing creates efficient shots for everyone on the floor."
 
-* "The Thunder's defense works because their perimeter defenders force teams into difficult late-clock possessions."
-* "Jokic remains the league's best offensive player because his passing creates efficient shots for everyone on the floor."
+### Hot Take
 
-### hot_take
-
-**Definition:** A bold or extreme basketball opinion expressed with confidence but lacking substantial evidence or reasoning.
-
-**Examples:**
-
-* "The Celtics are complete frauds and won't make it past the second round."
-* "Anthony Edwards is already better than every shooting guard in NBA history."
-
-### reaction
-
-**Definition:** A short emotional response to a game, player, trade, injury, or event that expresses a feeling rather than making an argument.
+A bold or extreme basketball opinion expressed confidently but lacking substantial evidence or reasoning.
 
 **Examples:**
+- "The Celtics are complete frauds and won't make it past the second round."
+- "Anthony Edwards is already better than every shooting guard in NBA history."
 
-* "Refs sold this game."
-* "This team is cooked."
+### Reaction
 
----
+A short emotional response to a game, player, trade, injury, or event that expresses a feeling rather than making an argument.
 
-## Hard Edge Cases
-
-Some comments fall between analysis and hot_take.
-
-Example:
-
-> "LeBron is overrated because his playoff record against top-seeded teams is below .500."
-
-This comment contains evidence but also uses a highly provocative claim. My decision rule is:
-
-* If evidence is used as part of a broader basketball argument, label as **analysis**.
-* If evidence is minimal, cherry-picked, or primarily used to support a provocative statement, label as **hot_take**.
-
-Another difficult category occurs between hot_take and reaction.
-
-Example:
-
-> "Trade everyone. This roster has no heart."
-
-If the comment primarily expresses frustration, it will be labeled **reaction**. If it makes a broader prediction or evaluation of a team without support, it will be labeled **hot_take**.
-
-## Difficult Annotation Examples
-
-1. **Example:** "The Celtics are just a coin-flip team."
-   **Possible labels:** hot_take or analysis
-   **Decision:** hot_take
-   **Reason:** The comment is about basketball strategy, but it does not provide enough evidence or reasoning. It makes a broad claim in a provocative way.
-
-2. **Example:** "Some team will talk themselves into trading for Durant."
-   **Possible labels:** hot_take or reaction
-   **Decision:** reaction
-   **Reason:** The comment is more of a casual response to the discussion than a strong prediction or detailed argument.
-
-3. **Example:** "Wembanyama will probably become the best player in the NBA soon."
-   **Possible labels:** hot_take or analysis
-   **Decision:** hot_take
-   **Reason:** The comment makes a bold future prediction without giving specific evidence or reasoning.
-
-4. **Example:** "The Luka trade became especially damaging because Dallas failed to maximize the return through an open bidding process."
-   **Possible labels:** analysis or hot_take
-   **Decision:** analysis
-   **Reason:** Even though it criticizes the trade, it explains a specific reason: Dallas did not create a bidding war or maximize trade value.
+**Examples:**
+- "Refs sold this game."
+- "This team is cooked."
 
 ---
 
-## Data Collection Plan
+## Dataset
 
-I will collect comments from NBA discussion communities such as r/nba and team-specific NBA discussion threads. I will gather approximately 200 comments.
+### Data Sources
 
-Target distribution:
+Comments were collected manually from public NBA discussion communities including:
 
-| Label    | Target Count |
-| -------- | -----------: |
-| analysis |           70 |
-| hot_take |           65 |
-| reaction |           65 |
+- r/nba game threads
+- r/nba post-game discussion threads
+- r/nba serious discussion threads
+- NBA trade discussion threads
 
-The dataset will be split into:
+### Dataset Size
 
-* Training: 160 examples
-* Validation: 20 examples
-* Test: 20 examples
+**Total labeled examples: 229**
 
-If one label is underrepresented, I will deliberately search for discussion threads where that type of comment is more common. For example, post-game threads often contain more reactions, while discussion posts contain more analysis.
+### Label Distribution
 
----
+| Label | Count |
+|---------|---------|
+| Analysis | 95 |
+| Hot Take | 54 |
+| Reaction | 46 |
 
-## Evaluation Metrics
+No label exceeded 70% of the dataset.
 
-Accuracy will be reported because it provides a simple measure of overall performance.
+### Labeling Process
 
-However, accuracy alone is not sufficient because a model could perform well by over-predicting the most common label.
+Each comment was manually reviewed and assigned exactly one label according to the taxonomy defined in planning.md. Comments were read individually rather than labeled in bulk to maintain consistency and reduce annotation noise.
 
-I will also report:
+### Difficult Annotation Examples
 
-* Precision for each class
-* Recall for each class
-* F1 score for each class
-* Confusion matrix
+#### Example 1
 
-These metrics are important because they reveal which labels are being confused with each other. Since analysis and hot_take can be similar, the confusion matrix will help identify whether the model has learned the intended distinction.
+**Comment:**  
+"The Celtics are just a coin-flip team."
 
----
+**Possible Labels:** analysis, hot_take
 
-## Definition of Success
+**Final Label:** hot_take
 
-I would consider the classifier successful if:
-
-* Overall test accuracy is at least 75%.
-* F1 score for every class is at least 0.70.
-* The fine-tuned DistilBERT model outperforms the zero-shot Groq baseline by at least 5 percentage points in overall accuracy.
-
-For a real community moderation or discussion-quality tool, I would consider the model good enough for deployment if it achieves at least 80% accuracy and maintains balanced performance across all three labels.
+**Reason:** The comment makes a basketball evaluation but does not provide supporting evidence.
 
 ---
 
-## AI Tool Plan
+#### Example 2
 
-### Label Stress-Testing
+**Comment:**  
+"Some team will talk themselves into trading for Durant."
 
-Before collecting the full dataset, I will use ChatGPT to generate 5–10 comments that intentionally sit between two labels. If I struggle to classify those comments consistently, I will revise my label definitions and decision rules before annotation begins.
+**Possible Labels:** hot_take, reaction
 
-### Annotation Assistance
+**Final Label:** reaction
 
-I will not use an LLM to automatically label my dataset. All final labels will be assigned manually to ensure consistency with my taxonomy and to avoid introducing model-generated bias into the training data.
+**Reason:** The comment is more of a casual response to the discussion than a strong prediction or argument.
 
-### Failure Analysis
+---
 
-After evaluation, I will provide examples of incorrect predictions to ChatGPT and ask it to identify possible error patterns. Potential patterns include confusion between analysis and hot_take, difficulty with sarcasm, or misclassification of very short comments. Any patterns suggested by the AI will be verified manually using actual prediction results before being included in the final report.
+#### Example 3
 
+**Comment:**  
+"Wembanyama will probably become the best player in the NBA soon."
+
+**Possible Labels:** hot_take, analysis
+
+**Final Label:** hot_take
+
+**Reason:** The statement is a bold prediction without supporting evidence.
+
+---
+
+## Fine-Tuning Pipeline
+
+### Base Model
+
+`distilbert-base-uncased`
+
+### Training Platform
+
+Google Colab (T4 GPU)
+
+### Training Configuration
+
+- Epochs: 3
+- Learning Rate: 2e-5
+- Batch Size: 16
+
+I used the default hyperparameters because the dataset was relatively small and these settings are commonly recommended for DistilBERT classification tasks.
+
+---
+
+## Baseline Comparison
+
+### Baseline Approach
+
+The baseline used Groq's `llama-3.3-70b-versatile` model in a zero-shot setting.
+
+The prompt included:
+
+- Definitions for analysis, hot_take, and reaction
+- Instructions to output only a single label
+
+### Baseline Results
+
+The baseline encountered output parsing issues within the notebook. While the model generated responses, the notebook failed to consistently map them back to the expected label format, resulting in zero parseable predictions.
+
+Because of this issue, meaningful quantitative baseline metrics could not be generated.
+
+---
+
+## Evaluation Report
+
+### Fine-Tuned Model Accuracy
+
+**Accuracy:** 48.6%
+
+### Per-Class Metrics
+
+| Label | Precision | Recall | F1 Score |
+|---------|---------|---------|---------|
+| Analysis | 0.50 | 0.94 | 0.65 |
+| Hot Take | 0.00 | 0.00 | 0.00 |
+| Reaction | 0.33 | 0.12 | 0.18 |
+
+### Confusion Matrix
+
+| True \ Predicted | Analysis | Hot Take | Reaction |
+|------------------|----------|----------|----------|
+| Analysis | 16 | 0 | 1 |
+| Hot Take | 9 | 0 | 1 |
+| Reaction | 7 | 0 | 1 |
+
+### Error Analysis
+
+#### Example 1
+
+**Text:**
+
+> The Cavaliers have no chance of winning Game 7 if Mitchell keeps playing this way.
+
+**True Label:** hot_take  
+**Predicted Label:** analysis
+
+**Analysis:**
+
+The model interpreted the phrase "if Mitchell keeps playing this way" as basketball reasoning. However, the statement is ultimately an unsupported prediction and should be classified as a hot_take.
+
+---
+
+#### Example 2
+
+**Text:**
+
+> Wow.
+
+**True Label:** reaction  
+**Predicted Label:** analysis
+
+**Analysis:**
+
+This comment contains almost no contextual information. The model appears to struggle with extremely short comments and often defaults toward analysis when insufficient information is available.
+
+---
+
+#### Example 3
+
+**Text:**
+
+> The Luka versus Wembanyama discussion highlights the tension between proven production and future upside.
+
+**True Label:** analysis  
+**Predicted Label:** reaction
+
+**Analysis:**
+
+This comment contains abstract basketball reasoning without specific statistics or game references. The model appears to rely heavily on explicit evidence rather than broader conceptual analysis.
+
+### Error Pattern Analysis
+
+The confusion matrix reveals a clear pattern: the model heavily over-predicted the **analysis** label.
+
+Nearly all hot_take and reaction examples were classified as analysis. This suggests that the model learned to associate basketball-related vocabulary with analysis regardless of whether evidence or reasoning was actually present.
+
+The model almost never predicted hot_take, indicating that it struggled to learn the distinction between evidence-based arguments and unsupported basketball opinions.
+
+To improve performance, I would collect additional hot_take examples and more short reaction examples. I would also strengthen the label definitions to further emphasize the difference between supported and unsupported claims.
+
+---
+
+## Sample Classifications
+
+| Comment | Predicted Label | Confidence |
+|----------|----------|----------|
+| The Luka versus Wembanyama discussion highlights the tension between proven production and future upside. | reaction | 0.36 |
+| People REALLY hate OKC huh? | analysis | 0.35 |
+| We regret letting go of a generational talent in Kuminga. | analysis | 0.35 |
+| We won something this year. | analysis | 0.35 |
+| Triple double on one made field goal is insane. | analysis | 0.36 |
+
+One prediction that is understandable is:
+
+> "We regret letting go of a generational talent in Kuminga."
+
+Although it was labeled as a hot_take, the comment evaluates a roster decision and references a specific player, which resembles analytical basketball discussion.
+
+---
+
+## Reflection
+
+My intended goal was for the model to distinguish evidence-based basketball discussion from unsupported opinions and emotional reactions.
+
+Instead, the model learned a simpler decision boundary. It frequently classified comments as analysis whenever they contained basketball-related reasoning language, even when they lacked evidence. It also struggled with very short comments that contained little context.
+
+My definition of success was 75% accuracy and an F1 score of at least 0.70 for each class. The final model achieved 48.6% accuracy and did not meet those goals.
+
+This suggests that the model captured surface-level basketball reasoning patterns rather than the deeper distinction between supported and unsupported arguments.
+
+---
+
+## AI Usage
+
+### Example 1: Label Stress Testing
+
+I used ChatGPT during the planning phase to generate edge-case examples that sat between analysis and hot_take. Several generated examples exposed weaknesses in my original definitions, which led me to refine the label boundaries before collecting data.
+
+### Example 2: Error Pattern Analysis
+
+After training the model, I used ChatGPT to analyze misclassified examples and identify common themes. The suggested pattern of over-predicting analysis matched my own manual review and was included in the final evaluation report.
+
+### Annotation Disclosure
+
+ChatGPT was used to help brainstorm examples and organize the dataset collection process. All final labels were reviewed and assigned manually before inclusion in the dataset.
+
+---
+
+## Spec Reflection
+
+The project specification was most helpful in forcing careful label design before any model training occurred. Defining labels and edge cases early prevented major revisions later in the project.
+
+One area where my implementation diverged from the original plan was the baseline evaluation. The project specification expected a quantitative comparison against a zero-shot baseline, but output parsing issues prevented reliable baseline metrics from being generated. The fine-tuned model evaluation was still completed successfully and provided useful insight into the classifier's strengths and weaknesses.
+
+---
+
+## Repository Structure
+
+```text
+ai201-project3-takemeter/
+├── planning.md
+├── README.md
+├── data/
+│   └── takemeter_dataset.csv
+├── outputs/
+│   ├── confusion_matrix.png
+│   └── evaluation_results.json
+```
